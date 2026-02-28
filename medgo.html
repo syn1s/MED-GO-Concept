@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MED:GO</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#74c69d; --green-dark:#52a87e; --green-deep:#2d6a4f;
+  --green-pale:#e9f7f0; --green-xpale:#f4fbf7;
+  --white:#fff; --bg:#f8faf9; --text:#1c2b22; --text-mid:#4a6357;
+  --muted:#93b0a3; --border:#ddeee6;
+  --red:#e05c5c; --red-pale:#fdf2f2;
+  --amber:#d4a843; --amber-pale:#fdf8ee;
+  --shadow:0 2px 16px rgba(82,168,126,.10);
+  --shadow-lg:0 8px 40px rgba(82,168,126,.16);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;line-height:1.6;overflow-x:hidden;}
+
+/* SPLASH */
+#splash{
+  position:fixed;inset:0;z-index:999;
+  background:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;
+  transition:opacity .7s ease, visibility .7s ease;
+}
+#splash.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.splash-hint{
+  font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--muted);
+  animation:blinkFade 2s ease-in-out infinite;
+}
+@keyframes blinkFade{0%,100%{opacity:1;}50%{opacity:.25;}}
+.splash-ring-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:280px;height:280px;}
+.splash-ring{
+  position:absolute;border-radius:50%;
+  border:1.5px solid rgba(116,198,157,.3);
+  animation:ringPulse 2.6s ease-in-out infinite;
+}
+@keyframes ringPulse{0%{transform:scale(.8);opacity:.8;}50%{transform:scale(1.15);opacity:.15;}100%{transform:scale(.8);opacity:.8;}}
+.splash-logo-btn{
+  background:none;border:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;
+  transition:transform .3s ease;outline:none;
+  position:relative;z-index:2;
+}
+.splash-logo-btn:hover{transform:scale(1.06);}
+.splash-logo-btn:active{transform:scale(.96);}
+.splash-logo-btn img{width:170px;height:170px;object-fit:contain;filter:drop-shadow(0 8px 28px rgba(82,168,126,.22));}
+.splash-tagline{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);letter-spacing:-.3px;}
+.splash-tagline span{color:var(--green-dark);}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.93);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;
+}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo img{width:34px;height:34px;object-fit:contain;}
+.logo-text{font-size:18px;font-weight:600;letter-spacing:-.3px;}
+.logo-text span{color:var(--green-dark);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{text-decoration:none;color:var(--text-mid);font-size:14px;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--green-dark);}
+.nav-cta{background:var(--green);color:#fff;border:none;padding:9px 22px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .2s,transform .2s;}
+.nav-cta:hover{background:var(--green-dark);transform:translateY(-1px);}
+@media(max-width:720px){.nav-links{display:none;}nav{padding:0 20px;}}
+
+/* HERO */
+.hero{max-width:1080px;margin:0 auto;padding:96px 32px 80px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+@media(max-width:720px){.hero{grid-template-columns:1fr;padding:64px 24px;gap:40px;}}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:var(--green-pale);color:var(--green-deep);padding:5px 14px;border-radius:100px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:24px;}
+.hero-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.75);}}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(34px,4.5vw,54px);line-height:1.1;letter-spacing:-.5px;margin-bottom:20px;}
+.hero h1 em{font-style:italic;color:var(--green-dark);}
+.hero p{font-size:16px;color:var(--text-mid);line-height:1.7;margin-bottom:36px;font-weight:300;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-primary{background:var(--green-dark);color:#fff;border:none;padding:13px 28px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn-primary:hover{background:var(--green-deep);transform:translateY(-1px);box-shadow:0 4px 16px rgba(82,168,126,.3);}
+.btn-ghost{background:transparent;color:var(--text-mid);border:1.5px solid var(--border);padding:13px 28px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn-ghost:hover{border-color:var(--green);color:var(--green-dark);}
+.hero-visual{background:var(--white);border:1px solid var(--border);border-radius:24px;padding:28px;box-shadow:var(--shadow-lg);animation:float 4s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.hero-visual-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--green-pale);}
+.hero-visual-title{font-size:13px;font-weight:600;}
+.hero-visual-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);margin-left:auto;animation:pulse 2s infinite;}
+.chat-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;margin-bottom:10px;}
+.chat-bubble.ai{background:var(--green-pale);color:var(--green-deep);border-radius:12px 12px 12px 4px;}
+.chat-bubble.user{background:var(--bg);color:var(--text);border-radius:12px 12px 4px 12px;margin-left:20px;font-size:12px;}
+.chat-bubble.approved{background:var(--green-deep);color:#fff;font-size:12px;}
+.approved-badge{display:inline-flex;align-items:center;gap:4px;background:var(--green-pale);color:var(--green-deep);padding:3px 8px;border-radius:100px;font-family:'DM Mono',monospace;font-size:10px;margin-top:8px;}
+
+/* HOW */
+.how{background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:96px 32px;}
+.how-inner{max-width:1080px;margin:0 auto;}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.section-title{font-family:'DM Serif Display',serif;font-size:clamp(28px,3.5vw,42px);line-height:1.15;margin-bottom:56px;}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:28px;}
+.step-num{width:44px;height:44px;border-radius:12px;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:20px;color:var(--green-dark);margin-bottom:16px;}
+.step h3{font-size:15px;font-weight:600;margin-bottom:7px;}
+.step p{font-size:13px;color:var(--text-mid);font-weight:300;line-height:1.6;}
+.green-line{width:48px;height:3px;background:var(--green);border-radius:100px;margin-bottom:20px;}
+
+/* TRIAGE */
+.triage-section{max-width:1080px;margin:0 auto;padding:96px 32px;}
+.triage-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;}
+@media(max-width:720px){.triage-grid{grid-template-columns:1fr;}}
+.triage-form-card{background:var(--white);border:1px solid var(--border);border-radius:24px;padding:32px;box-shadow:var(--shadow);}
+.form-title{font-size:18px;font-weight:600;margin-bottom:6px;}
+.form-sub{font-size:12px;color:var(--muted);margin-bottom:28px;font-family:'DM Mono',monospace;}
+.form-group{margin-bottom:20px;}
+.form-label{display:block;font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:8px;}
+.form-textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);resize:none;height:96px;transition:border-color .2s,box-shadow .2s;}
+.form-textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(116,198,157,.15);}
+.form-select{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);appearance:none;cursor:pointer;}
+.form-select:focus{outline:none;border-color:var(--green);}
+.symptom-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{padding:6px 13px;border-radius:100px;border:1.5px solid var(--border);background:var(--white);font-size:13px;color:var(--text-mid);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.chip:hover{border-color:var(--green);color:var(--green-dark);}
+.chip.active{background:var(--green-pale);border-color:var(--green);color:var(--green-dark);font-weight:500;}
+.submit-btn{width:100%;background:var(--green-dark);color:#fff;border:none;padding:14px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:8px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.submit-btn:hover{background:var(--green-deep);transform:translateY(-1px);box-shadow:0 4px 16px rgba(82,168,126,.3);}
+.submit-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* RESULTS */
+.result-panel{display:flex;flex-direction:column;gap:14px;}
+.result-card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:22px;box-shadow:0 1px 4px rgba(82,168,126,.07);display:none;}
+.result-card.visible{display:block;animation:slideIn .4s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.result-card-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.result-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.result-icon.ai{background:var(--green-pale);}
+.result-icon.doc{background:#eef4ff;}
+.result-icon.pharm{background:#fff4e6;}
+.result-icon.dlv{background:#f0f8ff;}
+.result-card-title{font-size:14px;font-weight:600;}
+.result-card-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+.typing-dots{display:flex;gap:4px;margin:8px 0;}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--green);animation:tdot 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+
+.ai-response-text{font-size:14px;color:var(--text);line-height:1.7;font-weight:300;}
+.urgency-bar{display:flex;gap:5px;margin:10px 0;}
+.urgency-seg{flex:1;height:6px;border-radius:100px;background:var(--border);}
+.urgency-seg.lit{background:var(--green);}
+.urgency-seg.amber{background:var(--amber);}
+.urgency-seg.red{background:var(--red);}
+.urgency-label{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;}
+.urgency-label.low{color:var(--green-dark);}
+.urgency-label.medium{color:var(--amber);}
+.urgency-label.high{color:var(--red);}
+
+.doctor-approval{background:var(--green-pale);border-radius:12px;padding:13px 15px;margin-top:12px;}
+.doctor-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.doc-avatar{width:30px;height:30px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;}
+.doc-name{font-size:13px;font-weight:600;}
+.doc-cred{font-size:10px;color:var(--text-mid);font-family:'DM Mono',monospace;}
+.approval-stamp{display:inline-flex;align-items:center;gap:4px;background:var(--green-dark);color:#fff;padding:3px 10px;border-radius:100px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;margin-bottom:7px;}
+.doc-note{font-size:13px;color:var(--text-mid);font-weight:300;line-height:1.6;}
+.recommendation-box{border-left:3px solid var(--green);padding:11px 14px;background:var(--green-xpale);border-radius:0 10px 10px 0;margin-top:12px;}
+.recommendation-box.urgent{border-left-color:var(--red);background:var(--red-pale);}
+.recommendation-box.caution{border-left-color:var(--amber);background:var(--amber-pale);}
+.rec-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.rec-text{font-size:13px;font-weight:500;}
+
+/* PHARMACY */
+.pharma-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.pharma-pill-tag{display:inline-flex;align-items:center;gap:5px;background:var(--green-pale);color:var(--green-deep);padding:4px 11px;border-radius:100px;font-size:12px;font-weight:500;}
+.pharma-sub-text{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;}
+.pharmacy-list{display:flex;flex-direction:column;gap:8px;}
+.pharmacy-item{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;transition:border-color .2s,box-shadow .2s;cursor:pointer;}
+.pharmacy-item:hover{border-color:var(--green);box-shadow:0 2px 10px rgba(82,168,126,.1);}
+.pharmacy-item.selected{border-color:var(--green-dark);background:var(--green-xpale);}
+.pharm-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.pharm-addr{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:3px;}
+.pharm-stock{font-size:11px;color:var(--green-dark);font-weight:500;}
+.pharm-stars{font-size:10px;color:var(--amber);margin-top:3px;}
+.pharm-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.pharm-dist{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--green-dark);}
+.pharm-open{font-size:9px;padding:2px 7px;border-radius:100px;font-family:'DM Mono',monospace;font-weight:500;}
+.pharm-open.open{background:var(--green-pale);color:var(--green-dark);}
+.pharm-open.closed{background:var(--red-pale);color:var(--red);}
+
+/* DELIVERY */
+.delivery-q{font-size:14px;font-weight:500;color:var(--text);margin-bottom:14px;line-height:1.5;}
+.delivery-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.delivery-opt{background:var(--bg);border:2px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;text-align:center;}
+.delivery-opt:hover{border-color:var(--green);}
+.delivery-opt.selected{border-color:var(--green-dark);background:var(--green-xpale);}
+.delivery-opt-icon{font-size:26px;margin-bottom:6px;}
+.delivery-opt-label{font-size:14px;font-weight:600;margin-bottom:3px;}
+.delivery-opt-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+.sub-form{background:var(--bg);border-radius:12px;border:1px solid var(--border);padding:14px;display:none;}
+.sub-form.visible{display:block;animation:slideIn .3s ease;}
+.form-input{width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);transition:border-color .2s;margin-bottom:9px;}
+.form-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(116,198,157,.12);}
+.form-input:last-of-type{margin-bottom:12px;}
+.confirm-btn{width:100%;background:var(--green-dark);color:#fff;border:none;padding:11px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;}
+.confirm-btn:hover{background:var(--green-deep);}
+
+.pickup-box{background:var(--green-xpale);border:1px solid var(--green-light,#b7e4c7);border-radius:12px;padding:14px;display:none;}
+.pickup-box.visible{display:block;animation:slideIn .3s ease;}
+.pickup-code{font-family:'DM Mono',monospace;font-size:22px;font-weight:600;color:var(--green-dark);letter-spacing:4px;margin:8px 0;}
+
+.delivery-confirmed{background:var(--green-pale);border-radius:12px;padding:16px;display:none;margin-top:4px;}
+.delivery-confirmed.visible{display:block;animation:slideIn .3s ease;}
+.confirmed-title{font-size:14px;font-weight:600;color:var(--green-deep);margin-bottom:6px;}
+.confirmed-msg{font-size:13px;color:var(--text-mid);line-height:1.6;margin-bottom:14px;}
+.track-bar{display:flex;align-items:center;margin-top:4px;}
+.track-node{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.track-dot{width:10px;height:10px;border-radius:50%;background:var(--green);}
+.track-dot.dim{background:var(--border);}
+.track-line{flex:1;height:2px;}
+.track-line.active{background:var(--green);}
+.track-line.dim{background:var(--border);}
+.track-lbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:center;max-width:48px;}
+
+/* STATS */
+.stats{background:var(--green-deep);padding:72px 32px;}
+.stats-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;text-align:center;}
+.stat-num{font-family:'DM Serif Display',serif;font-size:48px;color:#b7e4c7;margin-bottom:8px;}
+.stat-label{font-size:14px;color:rgba(255,255,255,.6);font-weight:300;}
+
+/* FOOTER */
+footer{background:var(--white);border-top:1px solid var(--border);padding:32px;text-align:center;}
+.footer-logo{font-size:16px;font-weight:600;margin-bottom:8px;}
+.footer-logo span{color:var(--green-dark);}
+.footer-note{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+.disclaimer{max-width:600px;margin:16px auto 0;padding:12px 16px;background:var(--amber-pale);border:1px solid #f0d89a;border-radius:10px;font-size:11px;color:#7a5f1a;font-family:'DM Mono',monospace;line-height:1.6;}
+
+.spinner{width:17px;height:17px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.placeholder-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 20px;text-align:center;background:var(--white);border:1.5px dashed var(--border);border-radius:20px;color:var(--muted);gap:10px;}
+.placeholder-state p{font-size:12px;font-family:'DM Mono',monospace;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeUp .55s ease both;}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-hint">Welcome to MED:GO</div>
+  <div class="splash-ring-wrap">
+    <div class="splash-ring" style="width:230px;height:230px;"></div>
+    <div class="splash-ring" style="width:290px;height:290px;animation-delay:.8s;border-color:rgba(116,198,157,.15);"></div>
+    <button class="splash-logo-btn" onclick="enterSite()" aria-label="Enter MED:GO">
+      <img src="data:image/jpeg;base64,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" alt="MED:GO">
+    </button>
+  </div>
+  <div class="splash-hint" style="animation-delay:.5s;font-size:12px;">Click the logo to enter</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <img src="data:image/jpeg;base64,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" alt="MED:GO">
+    <span class="logo-text">MED:<span>GO</span></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#triage">Try It</a></li>
+    <li><a href="#stats">Impact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('triage').scrollIntoView({behavior:'smooth'})">Start Assessment</button>
+</nav>
+
+<!-- HERO -->
+<section>
+  <div class="hero">
+    <div class="fade-in">
+      <div class="hero-tag">AI-Assisted Medical Triage</div>
+      <h1>Smart care,<br>before you <em>wait.</em></h1>
+      <p>MED:GO evaluates your symptoms, routes them to licensed physicians, locates the nearest pharmacy with your medication in stock — and delivers it to your door.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="document.getElementById('triage').scrollIntoView({behavior:'smooth'})">Check My Symptoms →</button>
+        <button class="btn-ghost" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+      </div>
+    </div>
+    <div class="hero-visual fade-in">
+      <div class="hero-visual-header">
+        <div class="avatar">🤖</div>
+        <div>
+          <div class="hero-visual-title">MED:GO Assistant</div>
+          <div class="hero-visual-sub">MEDGO-AI v2.1 · Secure</div>
+        </div>
+        <div class="status-dot"></div>
+      </div>
+      <div class="chat-bubble user">Sore throat, mild fever, tired for 2 days.</div>
+      <div class="chat-bubble ai">Low urgency ✓ — Dr. Somchai approved. Found <strong>2 pharmacies nearby</strong> with your medication in stock.</div>
+      <div class="chat-bubble approved">🏥 Pharma Plus — 0.4 km · Open now<br>💊 Paracetamol · Vitamin C · Lozenges<br>🛵 Delivery available · Est. 25 min</div>
+      <div class="approved-badge">✓ Physician Reviewed · Pharmacy Located</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="section-label">The Process</div>
+    <div class="green-line"></div>
+    <div class="section-title">Six steps to medicine<br>at your door.</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h3>Input Symptoms</h3><p>Describe what you're feeling. Use text or quick-select symptom tags.</p></div>
+      <div class="step"><div class="step-num">2</div><h3>AI Evaluates</h3><p>Our AI analyses patterns and assigns a triage level — Low, Medium, or High urgency.</p></div>
+      <div class="step"><div class="step-num">3</div><h3>Doctor Reviews</h3><p>A licensed physician reviews the assessment and approves or escalates the case.</p></div>
+      <div class="step"><div class="step-num">4</div><h3>Recommendation</h3><p>You receive a clear, physician-backed recommendation with exact medication listed.</p></div>
+      <div class="step"><div class="step-num">5</div><h3>Nearest Pharmacy</h3><p>We locate the closest pharmacies that have your exact medication in stock right now.</p></div>
+      <div class="step"><div class="step-num">6</div><h3>Pickup or Delivery</h3><p>Choose to walk in and collect, or get your medication delivered straight to your door.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRIAGE -->
+<section class="triage-section" id="triage">
+  <div class="section-label">Live Demo</div>
+  <div class="green-line"></div>
+  <div class="section-title" style="margin-bottom:40px">Try the full<br>assessment flow.</div>
+  <div class="triage-grid">
+
+    <!-- Form -->
+    <div class="triage-form-card">
+      <div class="form-title">Symptom Check</div>
+      <div class="form-sub">SIMULATED · NOT REAL MEDICAL ADVICE</div>
+      <div class="form-group">
+        <label class="form-label">Describe your symptoms</label>
+        <textarea class="form-textarea" id="symptomText" placeholder="e.g. I have a headache, slight fever, my throat hurts…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Quick symptom tags</label>
+        <div class="symptom-chips">
+          <button class="chip" onclick="toggleChip(this)">🤒 Fever</button>
+          <button class="chip" onclick="toggleChip(this)">🤧 Runny Nose</button>
+          <button class="chip" onclick="toggleChip(this)">🤕 Headache</button>
+          <button class="chip" onclick="toggleChip(this)">😮‍💨 Shortness of Breath</button>
+          <button class="chip" onclick="toggleChip(this)">🤢 Nausea</button>
+          <button class="chip" onclick="toggleChip(this)">💔 Chest Pain</button>
+          <button class="chip" onclick="toggleChip(this)">😴 Fatigue</button>
+          <button class="chip" onclick="toggleChip(this)">🦷 Sore Throat</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration of symptoms</label>
+        <select class="form-select" id="duration">
+          <option value="">Select duration…</option>
+          <option value="today">Started today</option>
+          <option value="1-2">1–2 days</option>
+          <option value="3-5">3–5 days</option>
+          <option value="week">More than a week</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Age range</label>
+        <select class="form-select" id="ageRange">
+          <option value="">Select age range…</option>
+          <option value="child">Under 12</option>
+          <option value="teen">12–17</option>
+          <option value="adult">18–59</option>
+          <option value="senior">60+</option>
+        </select>
+      </div>
+      <button class="submit-btn" onclick="runAssessment()" id="submitBtn">
+        <span id="btnText">Run Assessment</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div class="result-panel" id="resultPanel">
+      <div class="placeholder-state" id="placeholderState">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <p>Your full assessment will appear here.</p>
+      </div>
+
+      <!-- AI -->
+      <div class="result-card" id="aiCard">
+        <div class="result-card-header">
+          <div class="result-icon ai">🤖</div>
+          <div>
+            <div class="result-card-title">AI Analysis</div>
+            <div class="result-card-sub" id="aiSub">MEDGO-AI · Processing…</div>
+          </div>
+        </div>
+        <div class="typing-dots" id="aiDots"><span></span><span></span><span></span></div>
+        <div id="aiText" style="display:none" class="ai-response-text"></div>
+        <div id="urgencyWrap" style="display:none;margin-top:12px">
+          <div class="urgency-label" id="urgencyLabel"></div>
+          <div class="urgency-bar" id="urgencyBar"></div>
+        </div>
+      </div>
+
+      <!-- Doctor -->
+      <div class="result-card" id="docCard">
+        <div class="result-card-header">
+          <div class="result-icon doc">👨‍⚕️</div>
+          <div>
+            <div class="result-card-title">Physician Review</div>
+            <div class="result-card-sub" id="docSub">Routing to available doctor…</div>
+          </div>
+        </div>
+        <div class="typing-dots" id="docDots"><span></span><span></span><span></span></div>
+        <div id="docContent" style="display:none">
+          <div class="doctor-approval">
+            <div class="doctor-header">
+              <div class="doc-avatar">👩‍⚕️</div>
+              <div>
+                <div class="doc-name" id="docName"></div>
+                <div class="doc-cred" id="docCred"></div>
+              </div>
+            </div>
+            <div class="approval-stamp">✓ Reviewed &amp; Approved</div>
+            <div class="doc-note" id="docNote"></div>
+          </div>
+          <div class="recommendation-box" id="recBox">
+            <div class="rec-label">Recommendation</div>
+            <div class="rec-text" id="recText"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pharmacy -->
+      <div class="result-card" id="pharmCard">
+        <div class="result-card-header">
+          <div class="result-icon pharm">💊</div>
+          <div>
+            <div class="result-card-title">Nearest Pharmacies</div>
+            <div class="result-card-sub" id="pharmSub">Searching nearby stock…</div>
+          </div>
+        </div>
+        <div class="typing-dots" id="pharmDots"><span></span><span></span><span></span></div>
+        <div id="pharmContent" style="display:none">
+          <div class="pharma-sub-text" id="pharmSubText"></div>
+          <div class="pharma-pills" id="pharmPills"></div>
+          <div class="pharmacy-list" id="pharmacyList"></div>
+        </div>
+      </div>
+
+      <!-- Delivery -->
+      <div class="result-card" id="deliveryCard">
+        <div class="result-card-header">
+          <div class="result-icon dlv">🛵</div>
+          <div>
+            <div class="result-card-title">Get Your Medication</div>
+            <div class="result-card-sub">Choose how you'd like to receive it</div>
+          </div>
+        </div>
+        <div id="deliveryContent" style="display:none">
+          <div class="delivery-q" id="deliveryQ"></div>
+          <div class="delivery-opts">
+            <div class="delivery-opt" id="optDlv" onclick="selectMode('delivery')">
+              <div class="delivery-opt-icon">🛵</div>
+              <div class="delivery-opt-label">Home Delivery</div>
+              <div class="delivery-opt-sub">Est. 25–40 min</div>
+            </div>
+            <div class="delivery-opt" id="optPick" onclick="selectMode('pickup')">
+              <div class="delivery-opt-icon">🏥</div>
+              <div class="delivery-opt-label">I'll Pick Up</div>
+              <div class="delivery-opt-sub">Walk-in ready</div>
+            </div>
+          </div>
+
+          <!-- Delivery form -->
+          <div class="sub-form" id="dlvForm">
+            <label class="form-label">Delivery address</label>
+            <input type="text" class="form-input" id="dlvAddr" placeholder="123 Main St, Bangkok…">
+            <label class="form-label">Phone number</label>
+            <input type="text" class="form-input" id="dlvPhone" placeholder="+66 81 234 5678">
+            <label class="form-label">Notes for rider (optional)</label>
+            <input type="text" class="form-input" id="dlvNote" placeholder="Leave at door, ring bell…" style="margin-bottom:12px">
+            <button class="confirm-btn" onclick="confirmDelivery()">Confirm Delivery →</button>
+          </div>
+
+          <!-- Pickup box -->
+          <div class="pickup-box" id="pickupBox">
+            <div style="font-size:13px;color:var(--text-mid);line-height:1.7">
+              <strong id="pickupPharmName"></strong> is ready for walk-in.<br>
+              Show the pharmacist your MED:GO code:
+            </div>
+            <div class="pickup-code" id="pickupCode"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="pickupAddr"></div>
+          </div>
+
+          <!-- Confirmed -->
+          <div class="delivery-confirmed" id="dlvConfirmed">
+            <div class="confirmed-title">✅ Order Confirmed!</div>
+            <div class="confirmed-msg" id="confirmedMsg"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Delivery Status</div>
+            <div class="track-bar">
+              <div class="track-node">
+                <div class="track-dot"></div>
+                <div class="track-lbl">Confirmed</div>
+              </div>
+              <div class="track-line active"></div>
+              <div class="track-node">
+                <div class="track-dot"></div>
+                <div class="track-lbl">Preparing</div>
+              </div>
+              <div class="track-line dim"></div>
+              <div class="track-node">
+                <div class="track-dot dim"></div>
+                <div class="track-lbl">On the Way</div>
+              </div>
+              <div class="track-line dim"></div>
+              <div class="track-node">
+                <div class="track-dot dim"></div>
+                <div class="track-lbl">Delivered</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end result-panel -->
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats" id="stats">
+  <div class="stats-inner">
+    <div><div class="stat-num">73%</div><div class="stat-label">of minor cases resolved without hospital visit</div></div>
+    <div><div class="stat-num">&lt;4 min</div><div class="stat-label">average physician-approved response time</div></div>
+    <div><div class="stat-num">98.2%</div><div class="stat-label">accuracy in urgency triage (clinical trial)</div></div>
+    <div><div class="stat-num">12K+</div><div class="stat-label">assessments completed this month</div></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">MED:<span>GO</span></div>
+  <div class="footer-note">Smart Triage · Licensed Physicians · Pharmacy Network · Delivery</div>
+  <div class="disclaimer">⚠️ SIMULATION ONLY — MED:GO is a product demo. All AI responses, doctor approvals, pharmacy listings, and delivery flows are fictional and for demonstration purposes only. Always consult a licensed healthcare professional for real medical concerns.</div>
+</footer>
+
+<script>
+// SPLASH
+function enterSite(){
+  document.getElementById('splash').classList.add('hidden');
+}
+
+// CHIPS
+function toggleChip(el){ el.classList.toggle('active'); }
+
+// DATA
+const pharmaciesDB = {
+  mild:[
+    {name:'Pharma Plus', addr:'14 Silom Rd, Bangrak', dist:'0.4 km', open:true, stars:'★★★★☆', stock:'Paracetamol 500mg · Vitamin C 1000mg · Throat Lozenges'},
+    {name:'Bangkok Health Mart', addr:'27 Surawong Rd, Si Lom', dist:'0.9 km', open:true, stars:'★★★★★', stock:'Paracetamol 500mg · Strepsils · Antiflu-D'},
+    {name:'MedCare Pharmacy', addr:'5 Charoen Krung Soi 42', dist:'1.6 km', open:false, stars:'★★★☆☆', stock:'Paracetamol 500mg · Vitamin C'}
+  ],
+  medium:[
+    {name:'City Medical Pharmacy', addr:'88 Rama IV Rd, Silom', dist:'0.6 km', open:true, stars:'★★★★★', stock:'Ibuprofen 400mg · Antihistamine · Nasal Spray'},
+    {name:'HealthFirst Pharmacy', addr:'12 Wireless Rd, Ploenchit', dist:'1.2 km', open:true, stars:'★★★★☆', stock:'Paracetamol 500mg · Ibuprofen · Antihistamine'}
+  ],
+  high:[
+    {name:'⚠️ Emergency Services Only', addr:'Call 1669 · Nearest ER required', dist:'', open:true, stars:'', stock:'Immediate hospital care required — do not use a pharmacy for these symptoms'}
+  ]
+};
+
+const pillsDB = {
+  mild:['💊 Paracetamol 500mg','🍊 Vitamin C 1000mg','🔵 Throat Lozenges'],
+  medium:['💊 Ibuprofen 400mg','🔴 Antihistamine','💙 Nasal Decongestant'],
+  high:['🚨 Emergency care required — no pharmacy']
+};
+
+const scenarios = {
+  mild:{
+    urgency:'low',
+    aiText:'Based on your symptoms, the pattern is consistent with a common upper respiratory infection. Mild fever, fatigue, and sore throat are non-specific and frequently self-resolving. No red flags for serious conditions detected.\n\nUrgency level: <strong>Low</strong> — forwarding to on-call physician for final review.',
+    doc:{name:'Dr. Pimchanok Srisuk, MD', cred:'General Practice · Licensed TH-2847', note:'I agree with the AI triage. Symptoms are consistent with mild viral illness. No emergency indicators present. OTC medication is appropriate.'},
+    rec:'Rest at home, stay well-hydrated, and take OTC fever relief as needed. Follow up in 3 days if symptoms persist or worsen.',
+    recType:'',
+    pharmMsg:'Medication in stock at pharmacies near you:'
+  },
+  medium:{
+    urgency:'medium',
+    aiText:'Your reported symptoms — persistent headache, nausea, and moderate fever lasting several days — warrant closer evaluation. The duration and combination raise moderate concern.\n\nUrgency level: <strong>Medium</strong> — escalating to physician review now.',
+    doc:{name:'Dr. Weerasak Thongdee, MD', cred:'Internal Medicine · Licensed TH-5512', note:'Symptoms exceed typical self-limiting viral illness. In-person evaluation within 24 hours is recommended to rule out bacterial infection or underlying causes.'},
+    rec:'Visit a clinic or urgent care within 24 hours. Bring this MED:GO assessment report. Avoid self-prescribing antibiotics.',
+    recType:'caution',
+    pharmMsg:'Supporting medication found nearby while you arrange your clinic visit:'
+  },
+  high:{
+    urgency:'high',
+    aiText:'⚠️ Critical alert: Chest pain and shortness of breath are potential indicators of a serious cardiac or pulmonary event. This case has been flagged HIGH urgency and immediately escalated to a senior emergency physician.',
+    doc:{name:'Dr. Apinya Charoenwong, MD', cred:'Emergency Medicine · Licensed TH-0193', note:'URGENT: These symptoms require immediate in-person evaluation. Do not wait or use a pharmacy. Proceed to the nearest Emergency Room or call emergency services now.'},
+    rec:'🚨 Go to the Emergency Room immediately or call 1669. Do not drive yourself. Time-sensitive conditions require in-person care.',
+    recType:'urgent',
+    pharmMsg:'⚠️ Emergency care required — pharmacy is not applicable:'
+  }
+};
+
+let currentKey = 'mild';
+let selectedPharmIdx = 0;
+
+function detectScenario(){
+  const chips = [...document.querySelectorAll('.chip.active')].map(c => c.textContent.toLowerCase());
+  const text = (document.getElementById('symptomText').value || '').toLowerCase();
+  const all = chips.join(' ') + ' ' + text;
+  if(all.includes('chest') || all.includes('breath') || all.includes('shortness')) return 'high';
+  if(all.includes('nausea') || all.includes('headache') ||
+     ['week','3-5'].includes(document.getElementById('duration').value)) return 'medium';
+  return 'mild';
+}
+
+function urgencyConfig(level){
+  if(level==='low') return {segs:['lit','','','',''],label:'🟢 Low Urgency',cls:'low'};
+  if(level==='medium') return {segs:['amber lit','amber lit','amber lit','',''],label:'🟡 Medium Urgency',cls:'medium'};
+  return {segs:['red lit','red lit','red lit','red lit','red lit'],label:'🔴 High Urgency — Seek Emergency Care Immediately',cls:'high'};
+}
+
+async function runAssessment(){
+  const txt = document.getElementById('symptomText').value;
+  const activeChips = [...document.querySelectorAll('.chip.active')];
+  if(!txt && activeChips.length === 0){
+    document.getElementById('symptomText').style.borderColor = 'var(--red)';
+    setTimeout(() => document.getElementById('symptomText').style.borderColor = '', 2000);
+    return;
+  }
+
+  currentKey = detectScenario();
+  const sc = scenarios[currentKey];
+
+  // UI reset
+  document.getElementById('btnText').textContent = 'Analysing…';
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('placeholderState').style.display = 'none';
+  ['aiCard','docCard','pharmCard','deliveryCard'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.display = 'none'; el.classList.remove('visible');
+  });
+  ['dlvConfirmed','dlvForm','pickupBox'].forEach(id => document.getElementById(id).classList.remove('visible'));
+  ['optDlv','optPick'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  selectedPharmIdx = 0;
+
+  // ── AI Card ──
+  showCard('aiCard');
+  hide('aiText'); hide('urgencyWrap');
+  showEl('aiDots');
+  await wait(2200);
+  hideEl('aiDots');
+  document.getElementById('aiText').innerHTML = sc.aiText.replace(/\n/g,'<br>');
+  showEl('aiText');
+  const uc = urgencyConfig(sc.urgency);
+  document.getElementById('urgencyBar').innerHTML = uc.segs.map(s => `<div class="urgency-seg ${s}"></div>`).join('');
+  document.getElementById('urgencyLabel').textContent = uc.label;
+  document.getElementById('urgencyLabel').className = 'urgency-label ' + uc.cls;
+  showEl('urgencyWrap');
+  document.getElementById('aiSub').textContent = 'MEDGO-AI · Analysis complete';
+
+  // ── Doctor Card ──
+  await wait(500);
+  showCard('docCard');
+  hide('docContent'); showEl('docDots');
+  await wait(2500);
+  hideEl('docDots');
+  document.getElementById('docName').textContent = sc.doc.name;
+  document.getElementById('docCred').textContent = sc.doc.cred;
+  document.getElementById('docNote').textContent = sc.doc.note;
+  document.getElementById('docSub').textContent = 'Review complete · ' + new Date().toLocaleTimeString();
+  const rb = document.getElementById('recBox');
+  rb.className = 'recommendation-box' + (sc.recType ? ' ' + sc.recType : '');
+  document.getElementById('recText').textContent = sc.rec;
+  showEl('docContent');
+
+  // ── Pharmacy Card ──
+  await wait(600);
+  showCard('pharmCard');
+  hide('pharmContent'); showEl('pharmDots');
+  await wait(2000);
+  hideEl('pharmDots');
+  document.getElementById('pharmSub').textContent = 'Pharmacy located · Stock verified';
+  document.getElementById('pharmSubText').textContent = sc.pharmMsg;
+
+  const pills = pillsDB[currentKey];
+  document.getElementById('pharmPills').innerHTML = pills.map(p => `<span class="pharma-pill-tag">${p}</span>`).join('');
+
+  const list = pharmaciesDB[currentKey];
+  const listEl = document.getElementById('pharmacyList');
+  listEl.innerHTML = '';
+  list.forEach((ph, i) => {
+    const div = document.createElement('div');
+    div.className = 'pharmacy-item' + (i === 0 ? ' selected' : '');
+    div.onclick = () => {
+      selectedPharmIdx = i;
+      document.querySelectorAll('.pharmacy-item').forEach((el,j) => el.classList.toggle('selected', j === i));
+      updatePickup(list[i]);
+      if(document.getElementById('deliveryCard').classList.contains('visible')){
+        document.getElementById('deliveryQ').textContent = ph.name + ' has your medication ready. Would you like delivery or will you pick it up?';
+      }
+    };
+    div.innerHTML = `
+      <div>
+        <div class="pharm-name">${ph.name}</div>
+        <div class="pharm-addr">${ph.addr}</div>
+        <div class="pharm-stock">${ph.stock}</div>
+        ${ph.stars ? `<div class="pharm-stars">${ph.stars}</div>` : ''}
+      </div>
+      <div class="pharm-right">
+        ${ph.dist ? `<div class="pharm-dist">${ph.dist}</div>` : ''}
+        <div class="pharm-open ${ph.open ? 'open' : 'closed'}">${ph.open ? 'Open' : 'Closed'}</div>
+      </div>`;
+    listEl.appendChild(div);
+  });
+  showEl('pharmContent');
+
+  // ── Delivery Card (only for non-emergency) ──
+  if(currentKey !== 'high'){
+    await wait(500);
+    showCard('deliveryCard');
+    const ph0 = list[0];
+    document.getElementById('deliveryQ').textContent = ph0.name + ' has your medication ready. Would you like it delivered, or will you pick it up?';
+    updatePickup(ph0);
+    showEl('deliveryContent');
+  }
+
+  // Reset btn
+  document.getElementById('btnText').textContent = 'Run New Assessment';
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('submitBtn').disabled = false;
+}
+
+function updatePickup(ph){
+  document.getElementById('pickupPharmName').textContent = ph.name;
+  document.getElementById('pickupCode').textContent = 'MGO-' + Math.random().toString(36).substring(2,8).toUpperCase();
+  document.getElementById('pickupAddr').textContent = ph.addr + (ph.dist ? ' · ' + ph.dist : '');
+}
+
+function selectMode(mode){
+  document.getElementById('optDlv').classList.toggle('selected', mode === 'delivery');
+  document.getElementById('optPick').classList.toggle('selected', mode === 'pickup');
+  document.getElementById('dlvForm').classList.toggle('visible', mode === 'delivery');
+  document.getElementById('pickupBox').classList.toggle('visible', mode === 'pickup');
+  document.getElementById('dlvConfirmed').classList.remove('visible');
+}
+
+function confirmDelivery(){
+  const addr = document.getElementById('dlvAddr').value.trim();
+  const phone = document.getElementById('dlvPhone').value.trim();
+  if(!addr || !phone){
+    if(!addr) document.getElementById('dlvAddr').style.borderColor = 'var(--red)';
+    if(!phone) document.getElementById('dlvPhone').style.borderColor = 'var(--red)';
+    setTimeout(() => {
+      document.getElementById('dlvAddr').style.borderColor = '';
+      document.getElementById('dlvPhone').style.borderColor = '';
+    }, 2000);
+    return;
+  }
+  const ph = pharmaciesDB[currentKey][selectedPharmIdx];
+  const ref = 'MGO-' + Math.random().toString(36).substring(2,8).toUpperCase();
+  document.getElementById('confirmedMsg').innerHTML =
+    `Order <strong style="font-family:'DM Mono',monospace;color:var(--green-dark)">${ref}</strong> from <strong>${ph.name}</strong> is being prepared.<br>Delivering to <em>${addr}</em>. Estimated 25–40 min.<br>Tracking SMS will be sent to ${phone}.`;
+  document.getElementById('dlvConfirmed').classList.add('visible');
+  document.getElementById('dlvForm').classList.remove('visible');
+}
+
+// Helpers
+function showCard(id){
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  el.classList.remove('visible');
+  void el.offsetWidth;
+  el.classList.add('visible');
+  setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'nearest'}), 100);
+}
+function showEl(id){ document.getElementById(id).style.display = 'block'; }
+function hideEl(id){ document.getElementById(id).style.display = 'none'; }
+function hide(id){ document.getElementById(id).style.display = 'none'; }
+function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
